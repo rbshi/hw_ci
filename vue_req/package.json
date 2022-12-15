@@ -8,6 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@coreui/coreui": "^4.2.4",
+    "@coreui/vue": "^4.5.0",
     "axios": "^1.2.1",
     "vue": "^3.2.45"
   },
