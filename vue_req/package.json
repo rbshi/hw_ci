@@ -9,7 +9,11 @@
   },
   "dependencies": {
     "@coreui/coreui": "^4.2.4",
+    "@coreui/coreui-pro": "^4.4.2",
+    "@coreui/icons": "^2.1.0",
+    "@coreui/icons-vue": "^2.0.0",
     "@coreui/vue": "^4.5.0",
+    "@coreui/vue-pro": "^4.6.0",
     "axios": "^1.2.1",
     "vue": "^3.2.45"
   },
