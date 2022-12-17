@@ -8,6 +8,15 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var axios = require('axios')
+const fs = require('fs');
+const readline = require('readline');
+const stream = require('stream');
+const Transform = stream.Transform || require('readable-stream').Transform;
+
+const watchDir = process.env.WATCH_DIR
+var dissectors = require('./libs/dissectors').dissectors
+
+
 
 var app = express();
 
@@ -43,5 +52,78 @@ app.get('/', function (req, res) {
   console.log("Get request on /")
 })
 
+
+app.get('/build_coyote', function (req, res) {
+
+  console.log("Get request on /build_coyote")
+
+  // process event array map
+  var events = []
+
+  const parseStrm = new Transform({
+    transform(data, encoding, callback) {
+      for (const log_line of data.toString().split("\n")){
+        dissectors.map( async dissector => {
+          let parse_str = dissector.dissect(log_line)
+          if (parse_str != null) {
+            await event[parse_str.type].push(parse_str)
+          }
+        });
+      }
+      callback();
+    },
+    construct(event) {
+      this.event = event
+    }
+  });
+
+  async function parse_event(build_dirs) {
+    for (const dir of build_dirs) {
+
+      var event = { 'vivado_base': [], 'vivado_error': [], 'coyote_base': []}
+
+      let vivado_log_file = watchDir + "/" + dir + "/vivado.log"
+      if (fs.existsSync(vivado_log_file)) {
+        const logStrm = fs.createReadStream(vivado_log_file, {flags: 'r', encoding: 'utf-8', autoClose: true});
+        logStrm.pipe(
+            new Transform({
+              transform(data, encoding, callback) {
+                for (const log_line of data.toString().split("\n")){
+                  dissectors.map( async dissector => {
+                    let parse_str = dissector.dissect(log_line)
+                    if (parse_str != null) {
+                      await event[parse_str.type].push(parse_str)
+                    }
+                  });
+                }
+                callback();
+              }
+            })
+        )
+
+        var end = new Promise(function(resolve, reject) {
+          logStrm.on('end', () => resolve());
+        });
+
+        await end
+        events.push({dir, event})
+      }
+    }
+  }
+
+  const build_dirs = fs.readdirSync(watchDir)
+
+  var p = new Promise(async (resolve, reject) => {
+    await parse_event(build_dirs);
+    resolve();
+  }).then(
+      () => {
+        console.log(events)
+        setCorsHd(res)
+        res.send(events)
+      }
+  )
+
+});
 
 module.exports = app;
