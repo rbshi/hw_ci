@@ -8,21 +8,51 @@ import '@coreui/coreui/dist/css/coreui.min.css'
 
 function App() {
 
-
-    const [users, setUsers] = useState([])
+    const [events, setEvents] = useState([])
     const [details, setDetails] = useState([])
 
     useEffect(() => {
-        const fetchData = async () => {
-            const {data} = await axios.get("http://localhost:3010/")
-            console.log(data)
-            setUsers(data)
+
+        function buildStatus(nev) {
+            if (nev.event.vivado_error.length){
+                return 'error'
+            }
+            else if (nev.event.coyote_base[nev.event.coyote_base.length-1].process==='Bitstreams coppied'){
+                return 'done'
+            }
+            else {
+                return 'doing'
+            }
         }
+
+        async function translateFromNetEvents(net_events){
+            var evs = []
+            for (const nev of net_events) {
+                const ev = {
+                    build_dir: nev.dir,
+                    design: 'tba',
+                    status: buildStatus(nev),
+                    details: JSON.stringify([nev.event.coyote_base, nev.event.vivado_base, nev.event.vivado_error], null, 4)
+                }
+                await evs.push(ev)
+            }
+            return evs
+        }
+
+
+        const fetchData = async () => {
+            const net_events = await axios.get("http://localhost:3010/build_coyote")
+            const evs = await translateFromNetEvents(net_events.data)
+            setEvents(evs)
+        }
+
         fetchData()
         // setTimeout(() => {
         //     fetchData()
         // }, 2000)
     }, [])
+
+
     const getBadge = (status) => {
         switch (status) {
             case 'Active':
@@ -50,22 +80,10 @@ function App() {
 
 
     const columns = [
-        {
-            key: 'name',
-            _style: { width: '40%' },
-            // _props: { color: 'primary', className: 'fw-semibold' },
-        },
-        'registered',
-        { key: 'role', filter: false, sorter: false, _style: { width: '20%' } },
-        { key: 'status', _style: { width: '20%' } },
-        {
-            key: 'show_details',
-            label: '',
-            _style: { width: '1%' },
-            filter: false,
-            sorter: false,
-            // _props: { color: 'primary', className: 'fw-semibold' },
-        },
+        { key: 'build_dir', label: 'Build', _style: { width: '5%' } },
+        { key: 'design', label: 'Design', _style: { width: '10%' } },
+        { key: 'status', label: 'Build Status', _style: { width: '10%' } },
+        { key: 'show_details', label: '', _style: { width: '1%' }, filter: false },
     ]
 
     return (
@@ -78,7 +96,7 @@ function App() {
                 columnFilter
                 // columnSorter
                 // footer
-                items={users}
+                items={events}
                 itemsPerPageSelect
                 itemsPerPage={50}
                 pagination
@@ -110,7 +128,7 @@ function App() {
                             <CCollapse visible={details.includes(item._id)}>
                                 <CCardBody>
                                     <h4>{item.name}</h4>
-                                    <p className="text-muted">User since: {item.registered}</p>
+                                    <pre>{item.details}</pre>
                                 </CCardBody>
                             </CCollapse>
                         )
