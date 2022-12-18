@@ -1,10 +1,31 @@
 import './App.css';
 
-import {CSmartTable, CBadge, CButton, CCollapse, CCardBody, CTable, CModal, CModalTitle, CModalHeader, CModalFooter, CModalBody, CForm, CFormTextarea} from '@coreui/react-pro'
+import {
+    CSmartTable,
+    CBadge,
+    CButton,
+    CCollapse,
+    CCardBody,
+    CTable,
+    CModal,
+    CModalTitle,
+    CModalHeader,
+    CModalFooter,
+    CModalBody,
+    CForm,
+    CFormTextarea
+} from '@coreui/react-pro'
 import {useState, useEffect} from 'react';
 import axios from 'axios';
 
+import React from 'react';
+
 import '@coreui/coreui/dist/css/coreui.min.css'
+
+
+const url_get_build = 'http://ethz.rbshi.me:3010/build_coyote'
+const url_put_note = 'http://ethz.rbshi.me:3010/note'
+
 
 function App() {
 
@@ -15,19 +36,17 @@ function App() {
     useEffect(() => {
 
         function buildStatus(nev) {
-            if (nev.event.vivado_error.length){
+            if (nev.event.vivado_error.length) {
                 return 'error'
-            }
-            else if (nev.event.coyote_base[nev.event.coyote_base.length-1].process==='Bitstreams coppied'){
+            } else if (nev.event.coyote_base[nev.event.coyote_base.length - 1].process === 'Bitstreams coppied') {
                 return 'done'
-            }
-            else {
+            } else {
                 return 'baking'
             }
         }
 
-        async function translateFromNetEvents(net_events){
-            var evs = []
+        async function translateFromNetEvents(net_events) {
+            let evs = []
             for (const nev of net_events) {
                 const ev = {
                     build_dir: nev.dir,
@@ -36,14 +55,14 @@ function App() {
                     details: nev.event
                     // details: [nev.event.coyote_base, nev.event.vivado_base, nev.event.vivado_error]
                 }
-                await evs.push(ev)
+                evs.push(ev)
             }
             return evs
         }
 
 
         const fetchData = async () => {
-            const net_events = await axios.get("http://localhost:3010/build_coyote")
+            const net_events = await axios.get(url_get_build)
             const evs = await translateFromNetEvents(net_events.data)
             setEvents(evs)
         }
@@ -82,10 +101,10 @@ function App() {
 
 
     const columns = [
-        { key: 'build_dir', label: 'Build', _style: { width: '5%' } },
-        { key: 'design', label: 'Design', _style: { width: '10%' } },
-        { key: 'status', label: 'Build Status', _style: { width: '10%' } },
-        { key: 'show_details', label: '', _style: { width: '1%' }, filter: false },
+        {key: 'build_dir', label: 'Build', _style: {width: '5%'}},
+        {key: 'design', label: 'Design', _style: {width: '10%'}},
+        {key: 'status', label: 'Build Status', _style: {width: '10%'}},
+        {key: 'show_details', label: '', _style: {width: '1%'}, filter: false},
     ]
 
     return (
@@ -130,10 +149,10 @@ function App() {
                             <CCollapse visible={details.includes(item._id)}>
                                 <CCardBody>
                                     <h4>Vivado Error</h4>
-                                    <CTable striped small bordered color="dark" items={item.details.vivado_error} />
+                                    <CTable striped small bordered color="dark" items={item.details.vivado_error}/>
                                     <h4>Vivado Process</h4>
                                     {/*<pre>{JSON.stringify(item.details.vivado_error, null, 4)}</pre>*/}
-                                    <CTable striped small bordered color="dark" items={item.details.vivado_base} />
+                                    <CTable striped small bordered color="dark" items={item.details.vivado_base}/>
                                 </CCardBody>
                             </CCollapse>
                         )
@@ -170,7 +189,7 @@ function App() {
                 <CModalFooter>
                     <CButton color="secondary" onClick={() => setVisible(false)}>Close</CButton>
                     <CButton color="primary" onClick={async () => {
-                        const response = await axios.put('http://localhost:3010/', "hello");
+                        const response = await axios.put(url_put_note, "hello");
                         console.log(response)
                         setVisible(false)
                     }}>Save changes</CButton>
