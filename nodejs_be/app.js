@@ -8,6 +8,7 @@ const usersRouter = require('./routes/users');
 
 const axios = require('axios')
 const fs = require('fs');
+const fsPromises = require('fs/promises');
 const readline = require('readline');
 const stream = require('stream');
 const Transform = stream.Transform || require('readable-stream').Transform;
@@ -85,23 +86,34 @@ app.get('/build_coyote', function (req, res) {
 
 });
 
+function readFile (file_path) {
+    if (fs.existsSync(file_path)) {
+        return fs.readFileSync(file_path, 'utf8')
+    }
+    return ''
+}
+
+
 
 app.put('/note', function requestHandler(req, res) {
     console.log("Get post request")
 
     let note_action = req.body['action']
-    let note_dir = req.body['build_dir']
+    let build_dir = req.body['build_dir']
+    let note_file = watchDir + "/" + build_dir + '/' + "note.txt"
 
     switch (note_action) {
         case 'rd':
             //async read file stream
+            let rd_msg = readFile(note_file)
             //resp
-            res.json({msg: note_dir + " from read"});
+            res.json({msg: rd_msg});
             break;
         case 'wr':
             //async write file stream
-            let note_msg = req.body['msg']
-            res.json({msg: note_msg + "  to write"});
+            let wr_msg = req.body['msg']
+            fs.writeFile(note_file, wr_msg, { flag: 'w+' }, err => {});
+            res.json({msg: "Done"});
             break;
         default:
             console.log(JSON.stringify(req.body) + "is not a proper note action")
