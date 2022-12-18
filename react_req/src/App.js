@@ -19,7 +19,7 @@ import {
     CModalFooter,
     CModalBody,
     CForm,
-    CFormTextarea
+    CFormTextarea,
 } from '@coreui/react-pro'
 
 
@@ -45,6 +45,7 @@ async function translateFromNetEvents(net_events) {
             build_dir: nev.dir,
             design: 'tba',
             status: buildStatus(nev),
+            timing: 'wns',
             details: nev.event
             // details: [nev.event.coyote_base, nev.event.vivado_base, nev.event.vivado_error]
         }
@@ -109,11 +110,13 @@ function App() {
         {key: 'build_dir', label: 'Build', _style: {width: '5%'}},
         {key: 'design', label: 'Design', _style: {width: '10%'}},
         {key: 'status', label: 'Build Status', _style: {width: '10%'}},
+        {key: 'timing', label: 'Timing (WNS)', _style: {width: '10%'}},
         {key: 'show_details', label: '', _style: {width: '1%'}, filter: false},
     ]
 
     return (
         <div className="SmartTable">
+
             <CSmartTable
                 activePage={1}
                 clickableRows

@@ -6,3 +6,38 @@ This repo provides a web ui for multiple vivado builds.
 * If open vivado in the build folder, the default build log `vivado.log` is replaced. TODO: change the build log name, send to node.js as env.
 
 * Add some fault-tolarant behavior, e.g., if return empty event.
+
+
+## Data structure
+
+### FrontEnd (react.js)
+```
+events
+{
+    [ev]
+}
+
+ev
+{
+    build_dir: net_event.dir
+    design: 'tba'
+    status: buildStatus(net_event)
+    timing: 'wns'
+    details: net_event.event
+}
+
+```
+### BackEnd (express.js)
+```
+net_events
+{
+    [ { dir, net_event } ]
+}
+
+net_event
+{
+    vivado_base: [ { process, time, tail, type } ]
+    vivado_error: [ { error, type } ]
+    coyote_base: [ { process, type } ]
+}
+```
