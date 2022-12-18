@@ -1,6 +1,6 @@
 import './App.css';
 
-import {CSmartTable, CBadge, CButton, CCollapse, CCardBody} from '@coreui/react-pro'
+import {CSmartTable, CBadge, CButton, CCollapse, CCardBody, CTable, CModal, CModalTitle, CModalHeader, CModalFooter, CModalBody, CForm, CFormTextarea} from '@coreui/react-pro'
 import {useState, useEffect} from 'react';
 import axios from 'axios';
 
@@ -10,6 +10,7 @@ function App() {
 
     const [events, setEvents] = useState([])
     const [details, setDetails] = useState([])
+    const [visible, setVisible] = useState(false)
 
     useEffect(() => {
 
@@ -21,7 +22,7 @@ function App() {
                 return 'done'
             }
             else {
-                return 'doing'
+                return 'baking'
             }
         }
 
@@ -32,7 +33,8 @@ function App() {
                     build_dir: nev.dir,
                     design: 'tba',
                     status: buildStatus(nev),
-                    details: JSON.stringify([nev.event.coyote_base, nev.event.vivado_base, nev.event.vivado_error], null, 4)
+                    details: nev.event
+                    // details: [nev.event.coyote_base, nev.event.vivado_base, nev.event.vivado_error]
                 }
                 await evs.push(ev)
             }
@@ -55,16 +57,16 @@ function App() {
 
     const getBadge = (status) => {
         switch (status) {
-            case 'Active':
-                return 'success'
+            case 'done':
+                return 'dark'
             case 'Inactive':
                 return 'secondary'
-            case 'Pending':
-                return 'warning'
-            case 'Banned':
+            case 'baking':
+                return 'primary'
+            case 'error':
                 return 'danger'
             default:
-                return 'primary'
+                return 'light'
         }
     }
     const toggleDetails = (index) => {
@@ -110,7 +112,7 @@ function App() {
                         return (
                             <td className="py-2">
                                 <CButton
-                                    color="primary"
+                                    color="dark"
                                     variant="outline"
                                     shape="square"
                                     size="sm"
@@ -118,7 +120,7 @@ function App() {
                                         toggleDetails(item._id)
                                     }}
                                 >
-                                    {details.includes(item._id) ? 'Hide' : 'Show'}
+                                    {details.includes(item._id) ? 'Hide' : 'Details'}
                                 </CButton>
                             </td>
                         )
@@ -127,8 +129,11 @@ function App() {
                         return (
                             <CCollapse visible={details.includes(item._id)}>
                                 <CCardBody>
-                                    <h4>{item.name}</h4>
-                                    <pre>{item.details}</pre>
+                                    <h4>Vivado Error</h4>
+                                    <CTable striped small bordered color="dark" items={item.details.vivado_error} />
+                                    <h4>Vivado Process</h4>
+                                    {/*<pre>{JSON.stringify(item.details.vivado_error, null, 4)}</pre>*/}
+                                    <CTable striped small bordered color="dark" items={item.details.vivado_base} />
                                 </CCardBody>
                             </CCollapse>
                         )
@@ -141,10 +146,62 @@ function App() {
                     // color: 'danger',
                 }}
                 tableProps={{
-                    // striped: true,
+                    striped: true,
                     hover: true,
                 }}
             />
+
+            <CModal
+                className="show d-block position-static"
+                backdrop={false}
+                keyboard={false}
+                portal={false}
+                visible
+            >
+            <CModalHeader>
+                <CModalTitle>React Modal title</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+                <CForm>
+                <CFormTextarea
+                    id="exampleFormControlTextarea1"
+                    label="Example textarea"
+                    rows="3"
+                    text="Must be 8-20 words long."
+                ></CFormTextarea>
+                </CForm>
+
+            </CModalBody>
+            <CModalFooter>
+                <CButton color="secondary">Close</CButton>
+                <CButton color="primary">Save changes</CButton>
+            </CModalFooter>
+            </CModal>
+
+            <CButton onClick={() => setVisible(!visible)}>Launch demo modal</CButton>
+            <CModal visible={visible} onClose={() => setVisible(false)}>
+                <CModalHeader onClose={() => setVisible(false)}>
+                    <CModalTitle>Modal title</CModalTitle>
+                </CModalHeader>
+                <CModalBody>
+                    <CForm>
+                        <CFormTextarea
+                            id="exampleFormControlTextarea1"
+                            label="Example textarea"
+                            rows="8"
+                            text="Must be 8-20 words long."
+                            feedback="hello"
+                        ></CFormTextarea>
+                    </CForm>
+                </CModalBody>
+                <CModalFooter>
+                    <CButton color="secondary" onClick={() => setVisible(false)}>
+                        Close
+                    </CButton>
+                    <CButton color="primary">Save changes</CButton>
+                </CModalFooter>
+            </CModal>
+
         </div>
     );
 
