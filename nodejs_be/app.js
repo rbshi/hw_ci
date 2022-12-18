@@ -1,13 +1,12 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
 
-var axios = require('axios')
+const axios = require('axios')
 const fs = require('fs');
 const readline = require('readline');
 const stream = require('stream');
@@ -19,12 +18,13 @@ const dissectors = require('./libs/dissectors').dissectors;
 const cors = require("cors");
 
 
-var app = express();
+let app = express();
 
 app.use(
     cors({
         origin: "*",
-    })
+    }),
+    express.json()
 );
 
 app.use(function (req, res, next) {
@@ -33,39 +33,13 @@ app.use(function (req, res, next) {
 });
 
 
-app.get('/', function (req, res) {
-    // res.send("helloworld")
-    const car = {type: "Fiat", model: {main: "500", sub: "501"}, color: "white"};
-
-    const usersData = [
-        {id: 0, name: 'John Doe', registered: '2022/01/01', role: 'Guest', status: 'Pending'},
-        {id: 5, name: 'Friderik Dávid', registered: '2022/01/21', role: 'Staff', status: 'Active'},
-        {id: 6, name: 'Yiorgos Avraamu', registered: '2022/01/01', role: 'Member', status: 'Active'},
-        {id: 8, name: 'Quintin Ed', registered: '2022/02/07', role: 'Admin', status: 'Inactive'},
-        {id: 9, name: 'Enéas Kwadwo', registered: '2022/03/19', role: 'Member', status: 'Pending'},
-        {id: 10, name: 'Agapetus Tadeáš', registered: '2022/01/21', role: 'Staff', status: 'Active'},
-        {id: 11, name: 'Carwyn Fachtna', registered: '2022/01/01', role: 'Member', status: 'Active'},
-        {id: 12, name: 'Nehemiah Tatius', registered: '2022/02/07', role: 'Staff', status: 'Banned'},
-        {id: 13, name: 'Ebbe Gemariah', registered: '2022/02/07', role: 'Admin', status: 'Inactive'},
-        {id: 15, name: 'Leopold Gáspár', registered: '2022/01/21', role: 'Staff', status: 'Active'},
-        {id: 16, name: 'Pompeius René', registered: '2022/01/01', role: 'Member', status: 'Active'},
-        {id: 17, name: 'Paĉjo Jadon', registered: '2022/02/07', role: 'Staff', status: 'Banned'},
-    ]
-
-    res.json(usersData)
-    console.log("Get request on /")
-})
-
-
 app.get('/build_coyote', function (req, res) {
-
-    console.log("Get request on /build_coyote")
 
     // process event array map
     let events = []
 
     const parseStrm = new Transform({
-        transform(data, encoding, callback) {
+        transform: function (data, encoding, callback) {
             for (const log_line of data.toString().split("\n")) {
                 dissectors.map(async dissector => {
                     let parse_str = dissector.dissect(log_line)
@@ -76,9 +50,6 @@ app.get('/build_coyote', function (req, res) {
             }
             callback();
         },
-        construct(event) {
-            this.event = event
-        }
     });
 
     async function parse_event(build_dirs) {
@@ -122,7 +93,6 @@ app.get('/build_coyote', function (req, res) {
         resolve();
     }).then(
         () => {
-            console.log(events)
             res.send(events)
         }
     )
@@ -132,7 +102,9 @@ app.get('/build_coyote', function (req, res) {
 
 app.put('/note', function requestHandler(req, res) {
     console.log("Get post request")
-    res.end('Hello, World!');
+    req.body; // JavaScript object containing the parse JSON
+    console.log(JSON.stringify(req.body))
+    res.json(req.body);
 });
 
 
