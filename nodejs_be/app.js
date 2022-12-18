@@ -38,20 +38,6 @@ app.get('/build_coyote', function (req, res) {
     // process event array map
     let events = []
 
-    const parseStrm = new Transform({
-        transform: function (data, encoding, callback) {
-            for (const log_line of data.toString().split("\n")) {
-                dissectors.map(async dissector => {
-                    let parse_str = dissector.dissect(log_line)
-                    if (parse_str != null) {
-                        let evsPush = await event[parse_str.type].push(parse_str);
-                    }
-                });
-            }
-            callback();
-        },
-    });
-
     async function parse_event(build_dirs) {
         for (const dir of build_dirs) {
 
@@ -102,9 +88,25 @@ app.get('/build_coyote', function (req, res) {
 
 app.put('/note', function requestHandler(req, res) {
     console.log("Get post request")
-    req.body; // JavaScript object containing the parse JSON
-    console.log(JSON.stringify(req.body))
-    res.json(req.body);
+
+    let note_action = req.body['action']
+    let note_dir = req.body['build_dir']
+
+    switch (note_action) {
+        case 'rd':
+            //async read file stream
+            //resp
+            res.json({msg: note_dir + " from read"});
+            break;
+        case 'wr':
+            //async write file stream
+            let note_msg = req.body['msg']
+            res.json({msg: note_msg + "  to write"});
+            break;
+        default:
+            console.log(JSON.stringify(req.body) + "is not a proper note action")
+            res.json({msg: "Inproper request action"});
+    }
 });
 
 

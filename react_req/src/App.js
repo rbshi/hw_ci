@@ -146,9 +146,11 @@ function App() {
                                         shape="square"
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => {
-                                            setModals(item._id+1)
-                                            setNoteMsg(events[item._id]['build_dir'])
+                                        onClick={async () => {
+                                            //get note from backend
+                                            let rd_resp = await axios.put(url_put_note, {action: 'rd', build_dir: item['build_dir']})
+                                            setNoteMsg(rd_resp.data['msg'])
+                                            setModals(item._id+1) //hide the modal when setModals(0)
                                         }}
                                         >
                                         Notes
@@ -199,8 +201,9 @@ function App() {
                     <CButton color="light"
                         onClick={() => setModals(0)}>Close</CButton>
                     <CButton color="primary" onClick={async () => {
-                        const response = await axios.put(url_put_note, {msg: noteMsg});
-                        console.log(response.data)
+                        let build_dir = events[modals-1]['build_dir']
+                        let wr_resp = await axios.put(url_put_note, {action: 'wr', build_dir: build_dir, msg: noteMsg} );
+                        console.log(wr_resp.data.msg)
                         setModals(0)
                     }}>Save changes</CButton>
                 </CModalFooter>
