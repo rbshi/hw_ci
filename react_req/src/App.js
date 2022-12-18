@@ -95,7 +95,7 @@ function App() {
                 // cleaner
                 clickableRows
                 columns={columns}
-                columnFilter
+                // columnFilter
                 // columnSorter
                 // footer
                 items={events}
@@ -151,33 +151,6 @@ function App() {
                 }}
             />
 
-            <CModal
-                className="show d-block position-static"
-                backdrop={false}
-                keyboard={false}
-                portal={false}
-                visible
-            >
-            <CModalHeader>
-                <CModalTitle>React Modal title</CModalTitle>
-            </CModalHeader>
-            <CModalBody>
-                <CForm>
-                <CFormTextarea
-                    id="exampleFormControlTextarea1"
-                    label="Example textarea"
-                    rows="3"
-                    text="Must be 8-20 words long."
-                ></CFormTextarea>
-                </CForm>
-
-            </CModalBody>
-            <CModalFooter>
-                <CButton color="secondary">Close</CButton>
-                <CButton color="primary">Save changes</CButton>
-            </CModalFooter>
-            </CModal>
-
             <CButton onClick={() => setVisible(!visible)}>Launch demo modal</CButton>
             <CModal visible={visible} onClose={() => setVisible(false)}>
                 <CModalHeader onClose={() => setVisible(false)}>
@@ -190,15 +163,17 @@ function App() {
                             label="Example textarea"
                             rows="8"
                             text="Must be 8-20 words long."
-                            feedback="hello"
+                            defaultValue="hello hello"
                         ></CFormTextarea>
                     </CForm>
                 </CModalBody>
                 <CModalFooter>
-                    <CButton color="secondary" onClick={() => setVisible(false)}>
-                        Close
-                    </CButton>
-                    <CButton color="primary">Save changes</CButton>
+                    <CButton color="secondary" onClick={() => setVisible(false)}>Close</CButton>
+                    <CButton color="primary" onClick={async () => {
+                        const response = await axios.put('http://localhost:3010/', "hello");
+                        console.log(response)
+                        setVisible(false)
+                    }}>Save changes</CButton>
                 </CModalFooter>
             </CModal>
 

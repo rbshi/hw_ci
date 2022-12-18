@@ -16,17 +16,23 @@ const Transform = stream.Transform || require('readable-stream').Transform;
 const watchDir = process.env.WATCH_DIR
 var dissectors = require('./libs/dissectors').dissectors
 
+const cors = require("cors");
 
 
 var app = express();
 
-function setCorsHd(res, isJSON = true) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE'); // If needed
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type'); // If needed
-  res.setHeader('Access-Control-Allow-Credentials', true); // If needed
-  if(isJSON) res.setHeader('Content-Type', 'application/json');
-}
+app.use(
+    cors({
+      origin: "*",
+    })
+);
+
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
+
 
 app.get('/', function (req, res) {
   setCorsHd(res);
@@ -119,11 +125,22 @@ app.get('/build_coyote', function (req, res) {
   }).then(
       () => {
         console.log(events)
-        setCorsHd(res)
         res.send(events)
       }
   )
 
 });
+
+
+app.put('/', function requestHandler(req, res) {
+  console.log("Get post request")
+  res.end('Hello, World!');
+});
+
+
+
+
+
+
 
 module.exports = app;
