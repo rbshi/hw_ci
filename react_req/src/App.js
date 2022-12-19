@@ -86,8 +86,12 @@ function App() {
             const evs = await translateFromNetEvents(net_events.data)
             setEvents(evs)
         }
+        fetchData().then(console.log("hello"));
 
-        fetchData().then();
+        const interval = setInterval(() => {
+            fetchData().then(console.log("hello"));
+            }, 30000);
+        return () => clearInterval(interval);
     }, [])
 
     const handleNoteMsg = event => {
@@ -210,8 +214,7 @@ function App() {
                         onClick={() => setModals(0)}>Close</CButton>
                     <CButton color="primary" onClick={async () => {
                         let build_dir = events[modals-1]['build_dir']
-                        let wr_resp = await axios.put(url_put_note, {action: 'wr', build_dir: build_dir, msg: noteMsg} );
-                        console.log(wr_resp.data.msg)
+                        await axios.put(url_put_note, {action: 'wr', build_dir: build_dir, msg: noteMsg} );
                         setModals(0)
                     }}>Save changes</CButton>
                 </CModalFooter>

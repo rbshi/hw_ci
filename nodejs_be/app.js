@@ -111,8 +111,7 @@ function readFile(file_path) {
 
 
 app.put('/note', function requestHandler(req, res) {
-    console.log("Get post request")
-
+    
     let note_action = req.body['action']
     let build_dir = req.body['build_dir']
     let note_file = watchDir + "/" + build_dir + '/' + "note.txt"
