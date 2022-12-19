@@ -43,12 +43,13 @@ async function translateFromNetEvents(net_events) {
     let evs = []
     for (const nev of net_events) {
         const ev = {
+            watch_dir: nev.watch_dir,
             build_dir: nev.dir,
             design_desc: (nev.event['note_desc'].length) ? nev.event['note_desc'].at(0)['design_desc'] : 'N/A',
             status: (nev.event['vivado_base'].length || nev.event['coyote_base'].length) ? buildStatus(nev) : 'N/A',
             timing: (nev.event['vivado_timing'].length) ? nev.event['vivado_timing'].at(-1)['wns'] : 'N/A',
             details: nev.event,
-            date: (nev.status['mtime'].length) ? (nev.status['mtime'].slice(5, 10) + ' ' + nev.status['mtime'].slice(11, 16)) : 'N/A'
+            date: (nev.status) ? (nev.status['mtime'].slice(5, 7) + '/' + nev.status['mtime'].slice(8, 10) + ' ' + nev.status['mtime'].slice(11, 16)) : 'N/A'
         }
         evs.push(ev)
     }
@@ -86,12 +87,12 @@ function App() {
             const evs = await translateFromNetEvents(net_events.data)
             setEvents(evs)
         }
-        fetchData().then(console.log("hello"));
+        fetchData().then();
 
-        const interval = setInterval(() => {
-            fetchData().then(console.log("hello"));
-            }, 30000);
-        return () => clearInterval(interval);
+//        const interval = setInterval(() => {
+//            fetchData().then();
+//            }, 30000);
+//        return () => clearInterval(interval);
     }, [])
 
     const handleNoteMsg = event => {
@@ -160,7 +161,7 @@ function App() {
                                         size="sm"
                                         onClick={async () => {
                                             //get note from backend
-                                            let rd_resp = await axios.put(url_put_note, {action: 'rd', build_dir: item['build_dir']})
+                                            let rd_resp = await axios.put(url_put_note, {action: 'rd', build_dir: item['build_dir'], watch_dir: item['watch_dir']})
                                             setNoteMsg(rd_resp.data['msg'])
                                             setModals(item._id+1) //hide the modal when setModals(0)
                                         }}
