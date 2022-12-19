@@ -89,10 +89,10 @@ function App() {
         }
         fetchData().then();
 
-//        const interval = setInterval(() => {
-//            fetchData().then();
-//            }, 30000);
-//        return () => clearInterval(interval);
+        const interval = setInterval(() => {
+            fetchData().then();
+            }, 30000);
+        return () => clearInterval(interval);
     }, [])
 
     const handleNoteMsg = event => {
@@ -215,7 +215,8 @@ function App() {
                         onClick={() => setModals(0)}>Close</CButton>
                     <CButton color="primary" onClick={async () => {
                         let build_dir = events[modals-1]['build_dir']
-                        await axios.put(url_put_note, {action: 'wr', build_dir: build_dir, msg: noteMsg} );
+                        let watch_dir = events[modals-1]['watch_dir']
+                        await axios.put(url_put_note, {action: 'wr', watch_dir: watch_dir, build_dir: build_dir, msg: noteMsg} );
                         setModals(0)
                     }}>Save changes</CButton>
                 </CModalFooter>
