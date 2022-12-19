@@ -1,23 +1,25 @@
 // https://github.com/adamvr/node-log-dissector/blob/master/index.js
 
-var d_vivado_base = require('./vivado_base')
-var d_vivado_error = require('./vivado_error')
-var d_coyote = require('./coyote_base')
+const d_vivado_base = require('./vivado_base')
+const d_vivado_error = require('./vivado_error')
+const d_vivado_timing = require('./vivado_timing')
+const d_coyote = require('./coyote_base')
+const d_note_desc = require('./note_desc')
 
-var dissectors = [d_vivado_base, d_vivado_error, d_coyote]
+const dissectors = [d_vivado_base, d_vivado_error, d_vivado_timing, d_coyote, d_note_desc]
 
 function parse(d_module) {
-    var regex = d_module.regex
+    const regex = d_module.regex
         , map = d_module.map
         , type = d_module.type;
 
     return function (string) {
-        var matches = string.match(regex)
+        const matches = string.match(regex)
             , ret = {};
 
         if (!matches) return null;
-        for (var k in map) {
-            var v = map[k];
+        for (let k in map) {
+            const v = map[k];
             ret[v] = matches[k];
         }
 

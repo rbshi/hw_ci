@@ -31,13 +31,21 @@ ev
 ```
 net_events
 {
-    [ { dir, net_event } ]
+    [ { dir, net_event, mtime } ]
 }
 
 net_event
 {
     vivado_base: [ { process, time, tail, type } ]
     vivado_error: [ { error, type } ]
+    vivado_timing: {wns, type}
     coyote_base: [ { process, type } ]
 }
 ```
+
+### Process of adding new dissector
+* Add $dissector_name.js under libs/dissectors
+* Import in libs/dissectors/index.js
+* Update event initializer in app.js (`parse_even` function)
+
+* At frontend, add elements in `translateFromNetEvents` function

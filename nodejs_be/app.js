@@ -42,34 +42,50 @@ app.get('/build_coyote', function (req, res) {
     async function parse_event(build_dirs) {
         for (const dir of build_dirs) {
 
-            let event = {'vivado_base': [], 'vivado_error': [], 'coyote_base': []}
-
             let vivado_log_file = watchDir + "/" + dir + "/vivado.log"
-            if (fs.existsSync(vivado_log_file)) {
-                const logStrm = fs.createReadStream(vivado_log_file, {flags: 'r', encoding: 'utf-8', autoClose: true});
-                logStrm.pipe(
-                    new Transform({
-                        transform(data, encoding, callback) {
-                            for (const log_line of data.toString().split("\n")) {
-                                dissectors.map(async dissector => {
-                                    let parse_str = dissector.dissect(log_line)
-                                    if (parse_str != null) {
-                                        await event[parse_str.type].push(parse_str)
-                                    }
-                                });
-                            }
-                            callback();
-                        }
-                    })
-                )
+            let note_file = watchDir + "/" + dir + "/note.txt"
 
-                let end = new Promise(function (resolve, reject) {
-                    logStrm.on('end', () => resolve());
-                });
+            let file_list = [vivado_log_file, note_file]
 
-                await end
-                events.push({dir, event})
+            let event = {
+                'vivado_base': []
+                , 'vivado_error': []
+                , 'vivado_timing': []
+                , 'coyote_base': []
+                , 'note_desc': []
             }
+
+            for (const f of file_list){
+
+                if (fs.existsSync(f)) {
+                    const logStrm = fs.createReadStream(f, {flags: 'r', encoding: 'utf-8', autoClose: true});
+                    logStrm.pipe(
+                            new Transform({
+                                transform(data, encoding, callback) {
+                                    for (const log_line of data.toString().split("\n")) {
+                                        dissectors.map(async dissector => {
+                                            let parse_str = dissector.dissect(log_line)
+                                            if (parse_str != null) {
+                                                await event[parse_str.type].push(parse_str)
+                                            }
+                                        });
+                                    }
+                                    callback();
+                                }
+                            })
+                            )
+
+                    let end = new Promise(function (resolve, reject) {
+                        logStrm.on('end', () => resolve());
+                    });
+
+                    await end
+                }
+            }
+            const status = fs.statSync(vivado_log_file)
+            events.push({dir, event, status })
+
+
         }
     }
 
@@ -86,13 +102,12 @@ app.get('/build_coyote', function (req, res) {
 
 });
 
-function readFile (file_path) {
+function readFile(file_path) {
     if (fs.existsSync(file_path)) {
         return fs.readFileSync(file_path, 'utf8')
     }
     return ''
 }
-
 
 
 app.put('/note', function requestHandler(req, res) {
@@ -112,7 +127,8 @@ app.put('/note', function requestHandler(req, res) {
         case 'wr':
             //async write file stream
             let wr_msg = req.body['msg']
-            fs.writeFile(note_file, wr_msg, { flag: 'w+' }, err => {});
+            fs.writeFile(note_file, wr_msg, {flag: 'w+'}, err => {
+            });
             res.json({msg: "Done"});
             break;
         default:

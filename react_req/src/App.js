@@ -22,16 +22,17 @@ import {
     CFormTextarea,
 } from '@coreui/react-pro'
 
+import SysLogo from "./syslogo";
+
 
 //global
 const url_get_build = 'http://ethz.rbshi.me:3010/build_coyote'
 const url_put_note = 'http://ethz.rbshi.me:3010/note'
 
-
 function buildStatus(nev) {
     if (nev.event['vivado_error'].length) {
         return 'error'
-    } else if (nev.event['coyote_base'][nev.event['coyote_base'].length - 1].process === 'Bitstreams coppied') {
+    } else if (nev.event['coyote_base'].at(-1).process === 'Bitstreams coppied') {
         return 'done'
     } else {
         return 'baking'
@@ -43,11 +44,11 @@ async function translateFromNetEvents(net_events) {
     for (const nev of net_events) {
         const ev = {
             build_dir: nev.dir,
-            design: 'tba',
-            status: buildStatus(nev),
-            timing: 'wns',
-            details: nev.event
-            // details: [nev.event.coyote_base, nev.event.vivado_base, nev.event.vivado_error]
+            design_desc: (nev.event['note_desc'].length) ? nev.event['note_desc'].at(0)['design_desc'] : 'N/A',
+            status: (nev.event['vivado_base'].length || nev.event['coyote_base'].length) ? buildStatus(nev) : 'N/A',
+            timing: (nev.event['vivado_timing'].length) ? nev.event['vivado_timing'].at(-1)['wns'] : 'N/A',
+            details: nev.event,
+            date: (nev.status['mtime'].length) ? (nev.status['mtime'].slice(5, 10) + ' ' + nev.status['mtime'].slice(11, 16)) : 'N/A'
         }
         evs.push(ev)
     }
@@ -108,15 +109,19 @@ function App() {
 
     const columns = [
         {key: 'build_dir', label: 'Build', _style: {width: '5%'}},
-        {key: 'design', label: 'Design', _style: {width: '10%'}},
+        {key: 'design_desc', label: 'Design Description', _style: {width: '40%'}},
         {key: 'status', label: 'Build Status', _style: {width: '10%'}},
         {key: 'timing', label: 'Timing (WNS)', _style: {width: '10%'}},
+        {key: 'date', label: 'Date', _style: {width: '15%'}},
         {key: 'show_details', label: '', _style: {width: '1%'}, filter: false},
     ]
 
     return (
+        <>
+        <div className="SysLogo">
+            <SysLogo />
+        </div>
         <div className="SmartTable">
-
             <CSmartTable
                 activePage={1}
                 clickableRows
@@ -211,8 +216,8 @@ function App() {
                     }}>Save changes</CButton>
                 </CModalFooter>
             </CModal>
-
         </div>
+        </>
     );
 
 }

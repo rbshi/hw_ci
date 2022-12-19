@@ -3,12 +3,18 @@
 }
 
 .SmartTable {
-  margin-top: 100px;
-  margin-bottom: 100px;
-  margin-right: 150px;
-  margin-left: 80px;
+  margin-top: 30px;
+  margin-bottom: 50px;
+  margin-right: 100px;
+  margin-left: 100px;
 }
 
+.SysLogo {
+    display: flex;
+    justify-content: flex-end;
+    margin-left: auto;
+    margin-right: 100px;
+}
 
 .App-logo {
   height: 40vmin;

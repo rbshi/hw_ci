@@ -1,9 +1,9 @@
 // basic dissector of vivado.log with coyote
 
-var type = 'coyote_base';
+const type = 'coyote_base';
 
-var regex = /\*\*\*\* (.+)/;
-var map = {1: 'process'};
+const regex = /\*\*\*\* (.+)/;
+const map = {1: 'process'};
 
 module.exports = {
     type: type

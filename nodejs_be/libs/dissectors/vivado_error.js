@@ -1,9 +1,9 @@
 // basic dissector of vivado.log
 
-var type = 'vivado_error';
+const type = 'vivado_error';
 
-var regex = /ERROR: (.+)/;
-var map = {1: 'error'};
+const regex = /ERROR: (.+)/;
+const map = {1: 'error'};
 
 module.exports = {
     type: type
