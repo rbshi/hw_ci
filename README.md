@@ -7,10 +7,8 @@ This repo provides a web ui for multiple vivado builds.
 ```
 cd nodejs_be && export WATCH_DIRS=$HOME/Workspace/hw/build_A:$HOME/Workspace/hw/build_B && npm start &
 cd react_req && export NODE_OPTIONS=--openssl-legacy-provider && npm start &
-
-Open the page at: localhost:3000
-
 ```
+Open the page at: localhost:3000
 
 ### FrontEnd (react.js)
 ```
