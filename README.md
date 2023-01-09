@@ -2,13 +2,15 @@
 
 This repo provides a web ui for multiple vivado builds.
 
-## Notes
-* If open vivado in the build folder, the default build log `vivado.log` is replaced. TODO: change the build log name, send to node.js as env.
 
-* Add some fault-tolarant behavior, e.g., if return empty event.
+## RUNME
+```
+cd nodejs_be && export WATCH_DIRS=$HOME/Workspace/hw/build_A:$HOME/Workspace/hw/build_B && npm start &
+cd react_req && export NODE_OPTIONS=--openssl-legacy-provider && npm start &
 
+Open the page at: localhost:3000
 
-## Data structure
+```
 
 ### FrontEnd (react.js)
 ```

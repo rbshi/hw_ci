@@ -30,13 +30,18 @@ const url_get_build = 'http://ethz.rbshi.me:3010/build_coyote'
 const url_put_note = 'http://ethz.rbshi.me:3010/note'
 
 function buildStatus(nev) {
-    if (nev.event['vivado_error'].length) {
+    // Vivado Error status
+    if (nev.event['vivado_error'].length)
         return 'error'
-    } else if (nev.event['coyote_base'].at(-1).process === 'Bitstreams coppied') {
+    // Shell dcp written (incremental flow)
+    if (nev.event['coyote_base'].at(-1).process.includes('Design checkpoint (.dcp) written'))
         return 'done'
-    } else {
-        return 'baking'
-    }
+    // Coyote bitstream copied (non-incremental flow)
+    if (nev.event['coyote_base'].at(-1).process.includes('Bitstreams coppied'))
+        return 'done'
+    if (nev.event['coyote_base'].at(-1).process.includes('Full bitstream generated'))
+        return 'done'
+    return 'compiling'
 }
 
 async function translateFromNetEvents(net_events) {
@@ -62,7 +67,7 @@ const getBadge = (status) => {
             return 'dark'
         case 'Inactive':
             return 'secondary'
-        case 'baking':
+        case 'compiling':
             return 'primary'
         case 'error':
             return 'danger'
@@ -114,10 +119,10 @@ function App() {
 
     const columns = [
         {key: 'build_dir', label: 'Build', _style: {width: '5%'}},
-        {key: 'design_desc', label: 'Design Description', _style: {width: '40%'}},
-        {key: 'status', label: 'Build Status', _style: {width: '10%'}},
-        {key: 'timing', label: 'Timing (WNS)', _style: {width: '10%'}},
-        {key: 'date', label: 'Date', _style: {width: '15%'}},
+        {key: 'design_desc', label: 'Design Description', _style: {width: '60%'}},
+        {key: 'status', label: 'Build Status', _style: {width: '8%'}},
+        {key: 'timing', label: 'WNS', _style: {width: '8%'}},
+        {key: 'date', label: 'Date', _style: {width: '8%'}},
         {key: 'show_details', label: '', _style: {width: '1%'}, filter: false},
     ]
 
